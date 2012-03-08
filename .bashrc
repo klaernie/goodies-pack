@@ -5,7 +5,7 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-[ -n "$NOZSH" ] || ( which zsh >/dev/null 2>&1 && exec zsh )
+[ ! -n "$NOZSH" ] && which zsh >/dev/null 2>&1 && exec zsh
 
 # don't put duplicate lines in the history. See bash(1) for more options
 export HISTCONTROL=ignoredups
