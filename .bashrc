@@ -5,7 +5,12 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-[ ! -n "$NOZSH" ] && which zsh >/dev/null 2>&1 && exec zsh
+if [ ! -n "$NOZSH" ]; then
+	# try to run a locally compiled zsh first
+	[ -x $HOME/bin/zsh ] && exec $HOME/bin/zsh
+	# if this fails try executing a system-wide install version
+	which zsh >/dev/null 2>&1 && exec zsh
+fi
 
 # don't put duplicate lines in the history. See bash(1) for more options
 export HISTCONTROL=ignoredups
