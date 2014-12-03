@@ -1,0 +1,10 @@
+
+source $HOME/.screenrc
+
+autodetach on
+
+#term screen-16color
+
+screen -t mutt /bin/zsh -i -c mutt
+
+# vim: ft=screen :

@@ -1,0 +1,8 @@
+
+source $HOME/.screenrc
+
+autodetach on
+
+screen -t irssi /bin/zsh -i -c irssi
+
+# vim: ft=screen :
