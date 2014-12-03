@@ -1,0 +1,3 @@
+#!/bin/bash
+export SHELL=screen
+exec `readlink /etc/alternatives/x-terminal-emulator`
