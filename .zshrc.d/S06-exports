@@ -1,0 +1,43 @@
+
+# conditional exports
+##########
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+	PATH="$HOME/bin:$PATH"
+fi
+
+if [ -d "$HOME/SAPGUI" ]
+then
+	PATH="$PATH:$HOME/SAPGUI/SAPGUI/bin"
+fi
+
+# if sap's proxy is available, use it
+if host proxy.wdf.sap.corp >/dev/null 2>&1
+then
+	export https_proxy="http://proxy.wdf.sap.corp:8080"
+	export http_proxy="http://proxy.wdf.sap.corp:8080"
+	export ftp_proxy="http://proxy.wdf.sap.corp:8080"
+	export no_proxy="*.sap-ag.de, *.sap.corp, 127.0.0.0/8"
+fi
+
+# override system-screenrc as mine can do better.
+# but only if it exists.
+if [ -f $HOME/.screenrc ]
+then
+	export SYSSCREENRC=/dev/null
+fi
+
+# always done exports
+##########
+
+export NSS_DEFAULT_DB_TYPE="sql"
+
+export COLUMNS
+
+export EMAIL=kandre@ak-online.be
+
+export MANPAGER="/bin/sh -c \"unset PAGER; vim -R -c 'set ft=man nomod nolist nowrap nohlsearch' -c 'map q :q<CR>' -c 'map <SPACE> <C-D>' -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -c ':AnsiEsc' -\""
+
+
+# vim: ft=zsh

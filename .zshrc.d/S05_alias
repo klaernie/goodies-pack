@@ -1,0 +1,28 @@
+
+eval "`dircolors -b`"
+
+alias ls='ls --color=auto'
+alias dir='ls --color=auto --format=vertical'
+alias vdir='ls --color=auto --format=long'
+
+# some more ls aliases
+alias ll='ls -l'
+alias la='ls -A'
+alias l='ls -CF'
+
+#alias mutt='echo -ne "\033]0;mutt:${USER}@`hostname`\007";mutt'
+
+alias NewMailboxes="find ~/Maildir/ -name '*:2,' -exec dirname {} \; | uniq"
+
+alias newmail="vim -c 'set textwidth=75' -c 'set filetype=mail'"
+
+alias mount_ls2621="mkdir $HOME/ls2621 && sshfs ls2621: $HOME/ls2621 -o idmap=user -o workaround=rename && export OLDHOME=$HOME && export HOME=$HOME/ls2621 && cd $HOME/ls2621 "
+alias umount_ls2621="export HOME=$OLDHOME && unset OLDHOME && cd && fusermount -u $HOME/ls2621 && rmdir $HOME/ls2621 "
+
+# alias to renice shell-fm to prevent others from interrupting the audio
+#alias renice_shell-fm="sudo renice -5 `pidof shell-fm`"
+
+# make qmv behave like qmv --format=do by default
+alias qmv="qmv --format=do"
+
+# vim:ft=zsh

@@ -1,0 +1,110 @@
+# vim:ft=zsh
+
+autoload -U is-at-least
+if is-at-least 4.3.9; then
+	autoload -Uz vcs_info
+
+	zstyle ':vcs_info:*' disable cvs svn bzr cdv darcs mtn tla hg p4 svk
+	zstyle ':vcs_info:*' enable  git
+
+	zstyle ':vcs_info:*' check-for-changes  true
+	zstyle ':vcs_info:*' formats        "[${VCSH_REPO_NAME}${VCSH_REPO_NAME:+|}%b%c%u]"
+	zstyle ':vcs_info:*' actionformats  "[%b|%a]"
+	zstyle ':vcs_info:*' stagedstr '●'
+	zstyle ':vcs_info:*' unstagedstr '!'
+fi
+
+function title {
+  if [[ $TERM = screen* ]]; then
+    # Use these two for GNU Screen:
+    print -nR $'\033k'$1$'\033'\\
+
+    print -nR $'\033]0;'$2$'\a'
+  elif [[ $TERM == "xterm" || $TERM == "rxvt" ]]; then
+    # Use this one instead for XTerms:
+    print -nR $'\033]0;'$*$'\a'
+  fi
+}
+
+function precmd() {
+  title zsh "$PWD"
+
+  psvar=()
+
+  if is-at-least 4.3.9; then
+    vcs_info
+  fi
+  [[ -n $vcs_info_msg_0_ ]] && psvar[1]="$vcs_info_msg_0_"
+}
+
+function preexec() {
+  # as in http://zshwiki.org/home/examples/hardstatus
+  emulate -L zsh
+  local -a cmd; cmd=(${(z)1})             # Re-parse the command line
+  
+  # Construct a command that will output the desired job number.
+  case $cmd[1] in
+      fg)
+        if (( $#cmd == 1 )); then
+          # No arguments, must find the current job
+          cmd=(builtin jobs -l %+)
+        else
+          # Replace the command name, ignore extra args.
+          cmd=(builtin jobs -l ${(Q)cmd[2]})
+        fi;;
+       %*) cmd=(builtin jobs -l ${(Q)cmd[1]});; # Same as "else" above
+       exec) shift cmd;& # If the command is 'exec', drop that, because
+          # we'd rather just see the command that is being
+          # exec'd. Note the ;& to fall through.
+       *)  title $cmd[1]:t "$cmd[2,-1]"    # Not resuming a job,
+          return;;                        # so we're all done
+      esac
+  
+  local -A jt; jt=(${(kv)jobtexts})       # Copy jobtexts for subshell
+  
+  # Run the command, read its output, and look up the jobtext.
+  # Could parse $rest here, but $jobtexts (via $jt) is easier.
+  $cmd >>(read num rest
+          cmd=(${(z)${(e):-\$jt$num}})
+          title $cmd[1]:t "$cmd[2,-1]") 2>/dev/null
+}
+
+
+if is-at-least 4.3.9; then
+	red="%F{red}"
+	green="%F{green}"
+	yellow="%F{yellow}"
+	resetcolor="%f"
+else
+	red=$'\e[31m'
+	green=$'\e[32m'
+	yellow=$'\e[33m'
+	resetcolor=$'\e[39m'
+fi
+case $(echotc Co) in
+	8)
+		hred=$'\e[31m'
+		hgreen=$'\e[32m'
+		hyellow=$'\e[33m'
+		;;
+	16|256)
+		hred=$'\e[91m'
+		hgreen=$'\e[92m'
+		hyellow=$'\e[93m'
+		;;
+esac
+
+# terminate a line from the last commands output
+# if there was no final newline in it
+setopt PROMPT_SP
+setopt PROMPT_CR
+
+# the prompt is allowed to evaluate variables
+setopt promptsubst
+
+PS1="%{%B${hgreen}%}%(!..%n@)%m%{%b${green}%}(%y)%{%b${red}%}%1v${PSEXTRA}%{${resetcolor}%b%} %{%B${hyellow}%}%~ %{${resetcolor}%B%}%(!.%{${hred}%}#%{${resetcolor}%}.%%)%{%b%} "
+#PS1="%{%B%F{green}%}%(!..%n@)%m%b%F{green}(%y)%b%F{red}%1v${PSEXTRA}%f%b %{%B%F{yellow}%}%~ %f%B%#%b "
+
+RPROMPT="%{%B%}%(0?..%{${hred}%}[%?]%{${resetcolor}%}):%!"
+# RPROMPT="%B%(0?..%F{red}[%?]%f):%!"
+
